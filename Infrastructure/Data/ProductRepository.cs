@@ -19,7 +19,7 @@ namespace Infrastructure.Data
             var product = await _context.Products.Include(p => p.ProductType).Include(p => p.ProductBrand).FirstOrDefaultAsync(p => p.Id == id);
             return product;
         }
-
+        // Nota: ToList es lo que va a la BD y lo de antes indica que hara ese metodo en la BD
         public async Task<IReadOnlyList<Product>> GetProductsAsync()
         {
             var products = await _context.Products.Include(p => p.ProductType).Include(p => p.ProductBrand).ToListAsync();
