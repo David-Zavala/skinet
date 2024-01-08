@@ -1,12 +1,11 @@
 using API.Dtos;
 using API.Errors;
+using API.Helper;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
-using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -18,13 +17,21 @@ namespace API.Controllers
         private readonly IMapper _mapper = mapper;
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts()
+        public async Task<ActionResult<Pagination<IReadOnlyList<ProductToReturnDto>>>> GetProducts([FromQuery]ProductSpecParams productParams)
         {
-            var spec = new ProductsWithTypesAndBrandsSpecification();
+            var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
+            
+            var countSpec = new ProductWithFiltersForCountSpecification(productParams);
+            
+            var totalItems = await _productsRepo.CountAsync(countSpec);
+            
             var products = await _productsRepo.ListAsync(spec);
-            return products.Select(product => _mapper.Map<Product, ProductToReturnDto>(product)).ToList();
+
+            var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+            
+            // return products.Select(product => _mapper.Map<Product, ProductToReturnDto>(product)).ToList();
             // Testeando otra manera de obtener "aparentemente" lo mismo, si llega a haber problemas, usar:
-            // return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products));
+            return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
         }
 
         [HttpGet("{id}")]

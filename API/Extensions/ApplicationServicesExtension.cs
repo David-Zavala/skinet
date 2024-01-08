@@ -40,6 +40,12 @@ namespace API.Extensions
 
             });
 
+            services.AddCors(opt => {
+                opt.AddPolicy("AllowLoaclhost", policy => {
+                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200");
+                });
+            });
+
             return services;
         }
     }
