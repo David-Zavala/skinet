@@ -18,17 +18,17 @@ namespace API.Controllers
 
             if (thing == null) return NotFound(new ApiResponse(404));
 
-            return thing;
+            return Ok();
         }
         
         [HttpGet("servererror")]
         public ActionResult<string> GetServerError()
         {
-            var thing = _context.Products.Find(-1);
+            var thing = _context.Products.Find(42);
             
             var thingToReturn = thing.ToString();
 
-            return thingToReturn;
+            return Ok();
         }
         
         [HttpGet("badrequest")]
